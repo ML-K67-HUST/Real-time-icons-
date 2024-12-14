@@ -1,246 +1,106 @@
 import gradio as gr
 import torch
-from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import numpy as np
 
-model_name = "j-hartmann/emotion-english-distilroberta-base"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSequenceClassification.from_pretrained(model_name)
-
-classifier = pipeline("text-classification", 
-                     model=model, 
-                     tokenizer=tokenizer,
-                     top_k=5)
-
-emoji_mapping = {
-    # Emotions
-    'joy': '😊',
-    'happy': '😃',
-    'laugh': '😄',
-    'grin': '😁',
-    'excitement': '🤩',
-    'surprise': '😲',
-    'neutral': '😐',
-    'sad': '😢',
-    'cry': '😭',
-    'fear': '😨',
-    'scared': '😱',
-    'anger': '😠',
-    'mad': '🤬',
-    'disgust': '🤢',
-    'love': '🥰',
-    'heart': '❤️',
-    'tired': '😴',
-    'sleepy': '🥱',
-    'sick': '🤒',
-    'nerdy': '🤓',
-    'cool': '😎',
-    'wink': '😉',
-    'silly': '🤪',
-    'worried': '😟',
-    'confused': '😕',
-    'shocked': '😳',
-
-    # Animals
-    'dog': '🐕',
-    'cat': '🐈',
-    'mouse': '🐁',
-    'hamster': '🐹',
-    'rabbit': '🐇',
-    'fox': '🦊',
-    'bear': '🐻',
-    'panda': '🐼',
-    'koala': '🐨',
-    'tiger': '🐯',
-    'lion': '🦁',
-    'cow': '🐄',
-    'pig': '🐷',
-    'frog': '🐸',
-    'monkey': '🐒',
-    'chicken': '🐔',
-    'penguin': '🐧',
-    'bird': '🐦',
-    'eagle': '🦅',
-    'duck': '🦆',
-    'swan': '🦢',
-    'dove': '🕊️',
-    'butterfly': '🦋',
-    'bee': '🐝',
-
-    # Food and Drinks
-    'pizza': '🍕',
-    'burger': '🍔',
-    'sandwich': '🥪',
-    'hotdog': '🌭',
-    'taco': '🌮',
-    'sushi': '🍣',
-    'rice': '🍚',
-    'noodles': '🍜',
-    'bread': '🍞',
-    'cheese': '🧀',
-    'egg': '🥚',
-    'coffee': '☕',
-    'tea': '🫖',
-    'milk': '🥛',
-    'wine': '🍷',
-    'beer': '🍺',
-
-    # Transportation
-    'car': '🚗',
-    'taxi': '🚕',
-    'bus': '🚌',
-    'truck': '🚛',
-    'bicycle': '🚲',
-    'motorcycle': '🏍️',
-    'train': '🚂',
-    'airplane': '✈️',
-    'helicopter': '🚁',
-    'boat': '⛵',
-    'ship': '🚢',
-
-    # Weather & Nature
-    'sun': '☀️',
-    'moon': '🌙',
-    'star': '⭐',
-    'cloud': '☁️',
-    'rain': '🌧️',
-    'snow': '❄️',
-    'thunder': '⚡',
-    'rainbow': '🌈',
-    'flower': '🌸',
-    'tree': '🌳',
-    'leaf': '🍁',
-
-    # Sports & Activities
-    'football': '⚽',
-    'basketball': '🏀',
-    'baseball': '⚾',
-    'tennis': '🎾',
-    'volleyball': '🏐',
-    'swimming': '🏊',
-    'running': '🏃',
-    'dancing': '💃',
-    'skiing': '⛷️',
-    'surfing': '🏄',
-
-    # Objects & Tools
-    'phone': '📱',
-    'computer': '💻',
-    'camera': '📷',
-    'book': '📚',
-    'pen': '✒️',
-    'pencil': '✏️',
-    'scissors': '✂️',
-    'key': '🔑',
-    'lock': '🔒',
-    'clock': '⏰',
-    'gift': '🎁',
-    'money': '💰',
-    'shopping': '🛍️',
-
-    # Clothing & Fashion
-    'dress': '👗',
-    'shirt': '👕',
-    'pants': '👖',
-    'shoes': '👟',
-    'boot': '👢',
-    'hat': '🎩',
-    'crown': '👑',
-    'glasses': '👓',
-    'handbag': '👜',
-
-    # Places & Buildings
-    'house': '🏠',
-    'office': '🏢',
-    'school': '🏫',
-    'hospital': '🏥',
-    'castle': '🏰',
-    'church': '⛪',
-    'hotel': '🏨',
-    'store': '🏪',
-    'bank': '🏦',
-
-    # Symbols
-    'heart_symbol': '♥️',
-    'peace': '✌️',
-    'check': '✅',
-    'cross': '❌',
-    'warning': '⚠️',
-    'question': '❓',
-    'music': '🎵',
-    'fire': '🔥',
-    'sparkle': '✨'
-}
-
-def predict_emojis(text):
-    """
-    Predict emojis based on text analysis.
-    Returns relevant emojis for detected words.
-    """
-    if not text or len(text.strip()) == 0:
-        return "😐"
-    
-    try:
-        # Convert text to lowercase and split into words
-        words = text.lower().split()
-        
-        # Find matching emojis
-        found_emojis = []
-        for word in words:
-            if word in emoji_mapping:
-                found_emojis.append(emoji_mapping[word])
-        
-        # If no emojis found, try emotion classification
-        if not found_emojis:
-            predictions = classifier(text)
-            for pred in predictions[0]:
-                emotion = pred['label']
-                if pred['score'] > 0.3 and emotion in emoji_mapping:
-                    found_emojis.append(emoji_mapping[emotion])
-        
-        return " ".join(found_emojis) if found_emojis else "😐"
-    
-    except Exception as e:
-        print(f"Error in prediction: {e}")
-        return "😐"
-
-css = """
-.output-emoji { 
-    font-size: 2.5em; 
-    line-height: 1.5;
-    word-wrap: break-word;
-}
-"""
-
-with gr.Blocks(css=css) as demo:
-    gr.Markdown("# Smart Emoji Predictor")
-    
-    with gr.Row():
-        text_input = gr.Textbox(
-            label="Type something...",
-            placeholder="Express yourself...",
-            show_label=True,
-            lines=3
+class SentimentEmojiPredictor:
+    def __init__(self):
+        self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
+            "distilbert-base-uncased-finetuned-sst-2-english"
         )
-        emoji_output = gr.Textbox(
-            label="Predicted Emojis",
-            show_label=True,
-            interactive=False,
-            elem_classes=["output-emoji"]
+        self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
+            "distilbert-base-uncased-finetuned-sst-2-english"
         )
-    
-    gr.Markdown("""
-    This enhanced demo combines emotion recognition with word-to-emoji mapping.
-    It analyzes your text in real-time and predicts appropriate emojis based on both
-    emotional content and specific words or phrases.
-    """)
-    
-    text_input.change(
-        fn=predict_emojis,
-        inputs=[text_input],
-        outputs=[emoji_output],
-        show_progress=False
-    )
+        
+        self.emoji_map = {
+            'joy': ['😄', '😊', '🌞', '🎉', '✨'],
+            'sadness': ['😢', '😔', '💔', '🌧️', '😞'],
+            'anger': ['😠', '🤬', '😡', '💢', '🔥'],
+            'fear': ['😱', '😨', '🙀', '😰', '👻'],
+            'surprise': ['😮', '🤯', '😲', '🎈', '🌈'],
+            'neutral': ['😐', '🤨', '🫤', '😶', '🤔'],
+            
+            'education': ['📚', '✏️', '🎓', '📝', '🧠'],
+            'time': ['⏰', '⌛', '🕰️', '⏳', '📅'],
+            'family': ['👨‍👩‍👧', '❤️', '🤗', '👪', '🏡'],
+            'success': ['🏆', '🌟', '💪', '🎯', '🚀'],
+            'reflection': ['🤔', '💭', '🌈', '🌻', '🌄']
+        }
 
-if __name__ == "__main__":
-    demo.queue().launch()
+        try:
+            self.context_model = AutoModelForSequenceClassification.from_pretrained(
+                "nlptown/bert-base-multilingual-uncased-sentiment"
+            )
+            self.context_tokenizer = AutoTokenizer.from_pretrained(
+                "nlptown/bert-base-multilingual-uncased-sentiment"
+            )
+        except:
+            self.context_model = None
+    
+    def predict_sentiment(self, text):
+        """Predict overall sentiment of the text."""
+        inputs = self.sentiment_tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+        
+        with torch.no_grad():
+            outputs = self.sentiment_model(**inputs)
+        
+        probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
+        sentiment_label = torch.argmax(probs).item()
+        sentiment_score = probs[0][sentiment_label].item()
+        
+        return 'positive' if sentiment_label == 1 else 'negative', sentiment_score
+    
+    def suggest_emojis(self, text):
+        """Suggest contextual and emotional emojis."""
+        sentiment_type, sentiment_score = self.predict_sentiment(text)
+        
+        base_emojis = self.emoji_map.get(sentiment_type, self.emoji_map['neutral'])
+        
+        context_emojis = []
+        context_keywords = {
+            'education': ['study', 'exam', 'school', 'learn', 'homework'],
+            'time': ['time', 'clock', 'moment', 'deadline'],
+            'family': ['parent', 'dad', 'mom', 'family', 'love'],
+            'success': ['achieve', 'win', 'goal', 'success'],
+            'reflection': ['think', 'reflect', 'consider', 'understand']
+        }
+        for context, keywords in context_keywords.items():
+            if any(keyword in text.lower() for keyword in keywords):
+                context_emojis.extend(self.emoji_map.get(context, []))
+        
+        all_emojis = list(dict.fromkeys(base_emojis + context_emojis))
+        
+        if sentiment_score > 0.8:
+            selected_emojis = all_emojis[:2] 
+        elif sentiment_score < 0.3:
+            selected_emojis = all_emojis[-2:] 
+        else:
+            selected_emojis = all_emojis[:1] 
+        return selected_emojis
+    
+    def process_text(self, text):
+        import re
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        
+        processed_sentences = []
+        for sentence in sentences:
+            emojis = self.suggest_emojis(sentence)
+            emoji_str = ' '.join(emojis)
+            processed_sentence = f"{emoji_str} {sentence}"
+            processed_sentences.append(processed_sentence)
+        
+        return ' '.join(processed_sentences)
+
+predictor = SentimentEmojiPredictor()
+
+def emoji_interface(text):
+    return predictor.process_text(text)
+
+iface = gr.Interface(
+    fn=emoji_interface,
+    inputs=gr.Textbox(lines=5, placeholder="Enter your text here..."),
+    outputs=gr.Textbox(lines=5),
+    title="AI Sentiment & Emoji Predictor",
+    description="Automatically add contextual and sentiment-based emojis to your text!"
+)
+iface.launch()
