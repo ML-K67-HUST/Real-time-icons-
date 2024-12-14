@@ -1,4 +1,14 @@
 gradio
 torch
-transformers
+wandb
+scikit-multilearn
+nltk
+pandas
 numpy
+torch
+scikit-learn
+tensorflow
+keras
+gensim
+transformers
+albumentations

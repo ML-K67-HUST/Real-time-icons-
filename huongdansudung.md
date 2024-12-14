@@ -1,4 +1,7 @@
 ### Checkpoint
-Link drive checkpoint = ```https://drive.google.com/file/d/14c_r27-qNZ-QLVpzkcmD65l2HC3F7RGo/view?usp=sharing```
+Link drive checkpoint, glove = ```https://drive.google.com/drive/folders/1JOiP5PQAg2x0GbtxMBFEUGcY06fUOvqq?usp=share_link```
 
-```model = load_checkpoint(checkpoint_path)```
+Vat file ckpt va file glove vao repo nay, branch nay (qta)
+
+```pip install -r requirements.txt```
+```python3 infer_MAGNET.py```
