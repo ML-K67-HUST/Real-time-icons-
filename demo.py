@@ -32,8 +32,8 @@ class SentimentEmojiPredictor:
         
         return {
             'ml_sentiment': 'positive' if sentiment_label == 1 else 'negative',
-            'textblob_polarity': blob.sentiment.polarity,
-            'textblob_subjectivity': blob.sentiment.subjectivity
+            # 'textblob_polarity': blob.sentiment.polarity,
+            # 'textblob_subjectivity': blob.sentiment.subjectivity
         }
     
     def process_text(self, text):
@@ -54,13 +54,14 @@ class SentimentEmojiPredictor:
             processed_sentences.append(processed_sentence)
         
         analysis_text = (
-            f"Sentiment Analysis:\n"
-            f"Machine Learning Sentiment: {sentiment_analysis['ml_sentiment'].capitalize()}\n"
-            f"Polarity: {sentiment_analysis['textblob_polarity']:.2f}\n"
-            f"Subjectivity: {sentiment_analysis['textblob_subjectivity']:.2f}"
+            f"{sentiment_analysis['ml_sentiment'].capitalize()}"
+            # f"Polarity: {sentiment_analysis['textblob_polarity']:.2f}\n"
+            # f"Subjectivity: {sentiment_analysis['textblob_subjectivity']:.2f}"
         )
         
-        return ' '.join(processed_sentences), analysis_text
+        # return ' '.join(processed_sentences), analysis_text
+        return ' '.join(processed_sentences)
+    
     
     def generate_random_text(self, mood='random'):
         texts = {
@@ -113,11 +114,11 @@ def create_interface():
                     interactive=False
                 )
                 
-                analysis_text = gr.Textbox(
-                    lines=5,
-                    label="Analysis",
-                    interactive=False
-                )
+                # analysis_text = gr.Textbox(
+                #     lines=5,
+                #     label="Analysis",
+                #     interactive=False,
+                # )
         
         generate_mood = gr.Dropdown(
             ['random', 'happy', 'sad', 'neutral'], 
@@ -128,7 +129,9 @@ def create_interface():
         process_btn.click(
             predictor.process_text, 
             inputs=text_input, 
-            outputs=[processed_text, analysis_text]
+            # outputs=[processed_text, analysis_text]
+            outputs=[processed_text]
+            
         )
         
         generate_btn.click(
