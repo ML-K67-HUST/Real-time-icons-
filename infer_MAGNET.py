@@ -1,5 +1,4 @@
 import torch
-import os
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -101,7 +100,7 @@ y_test = torch.from_numpy(y_test)
 
 # Load glove embedding
 glove_embeddings = {}
-with open('glove.6B.300d.txt', 'r', encoding='utf-8') as f:
+with open('glove/glove.6B.300d.txt', 'r', encoding='utf-8') as f:
     for line in f:
         parts = line.split()
         word = parts[0]
@@ -162,25 +161,37 @@ def infer(model, sample_text, glove_label_embedding):
 
     with torch.no_grad():
         outputs = model(inputs, glove_label_embedding)
-        predictions = torch.sigmoid(outputs).round().cpu().numpy()
+        predictions = outputs.cpu().numpy()[0]
 
-    predicted_labels = [label_names[i] for i, pred in enumerate(predictions[0]) if pred == 1]
-    return predicted_labels
+    # Sort predictions and get the top 5 labels
+    top_indices = np.argsort(predictions)[-5:][::-1]
+    top_labels = [label_names[i] for i in top_indices]
+    top_values = predictions[top_indices]
+
+    return top_labels, top_values
 
 # Load the best model
 ckpt_path = 'MAGNET_best_model_final.pt'
 model = MAGNET(300, 250, adj_matrix, glove_embedding_matrix, heads=8)
 model = load_checkpoint(model, ckpt_path)
 
-# Take a sample from the test set
+# # Take a multilabel sample from the filtered test set
+# multi_label_indices = [i for i, labels in enumerate(y_test) if labels.sum() > 1]
+# sample_index = np.random.choice(multi_label_indices)
+# sample_text = X_test[sample_index]
+# original_text = raw_texts[sample_index]  # Get the original raw text
+# true_labels = [label_names[i] for i, val in enumerate(y_test[sample_index]) if val == 1]
+
+# Take a random sample from the test set
 sample_index = np.random.randint(0, len(X_test))
 sample_text = X_test[sample_index]
 original_text = raw_texts[sample_index]  # Get the original raw text
 true_labels = [label_names[i] for i, val in enumerate(y_test[sample_index]) if val == 1]
 
 # Run inference
-predicted_labels = infer(model, sample_text, glove_label_embedding)
+top_labels, top_values = infer(model, sample_text, glove_label_embedding)
 
 print(f"Sample Text: {original_text}")
 print(f"True Labels: {true_labels}")
-print(f"Predicted Labels: {predicted_labels}")
+print(f"Top 5 Predicted Labels: {top_labels}")
+print(f"Top 5 Predicted Values: {top_values}")
