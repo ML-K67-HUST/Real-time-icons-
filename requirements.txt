@@ -29,6 +29,7 @@ decorator @ file:///home/conda/feedstock_root/build_artifacts/decorator_17332364
 deprecation==2.1.0
 dill==0.3.8
 diskcache==5.6.3
+distro==1.9.0
 docker-pycreds==0.4.0
 efficientnet_pytorch==0.7.1
 emoji==2.14.0
@@ -66,6 +67,7 @@ ipykernel @ file:///home/conda/feedstock_root/build_artifacts/ipykernel_17198454
 ipython @ file:///home/conda/feedstock_root/build_artifacts/ipython_1732896932739/work
 jedi @ file:///home/conda/feedstock_root/build_artifacts/jedi_1733300866624/work
 Jinja2==3.1.4
+jiter==0.8.2
 joblib==1.4.2
 jsonmerge==1.8.0
 jsonschema==4.23.0
@@ -113,6 +115,7 @@ nvidia-nccl-cu12==2.21.5
 nvidia-nvjitlink-cu12==12.4.127
 nvidia-nvtx-cu12==12.4.127
 open-clip-torch==2.20.0
+openai==1.58.1
 opencv-python==4.10.0.84
 opencv-python-headless==4.10.0.84
 opt_einsum==3.4.0
@@ -208,3 +211,4 @@ wordcloud==1.9.4
 wrapt==1.17.0
 xxhash==3.5.0
 yarl==1.18.0
+yellowbrick==1.5

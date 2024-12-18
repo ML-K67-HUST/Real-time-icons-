@@ -11,5 +11,5 @@ pip install -r requirements.txt
 ```
 Start using application 
 ```
-python demo.py
+python demo_test.py
 ```
