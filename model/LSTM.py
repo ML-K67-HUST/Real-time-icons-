@@ -169,5 +169,6 @@ def train_model(X_train, y_train, X_test, y_test, epochs=50, batch_size=32):
     print(f"Test F1: {test_metrics['f1']:.4f}")
     print(f"Test Precision: {test_metrics['precision']:.4f}")
     print(f"Test Recall: {test_metrics['recall']:.4f}")
-    
+
     return model, test_metrics
+

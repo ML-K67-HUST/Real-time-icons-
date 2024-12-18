@@ -2,9 +2,12 @@ import torch
 import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import MultiLabelBinarizer
+
 from model.ANN import ANN
 
 model_path = './checkpoint/model_checkpoint.pth'
+
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = ANN(n_in=16909, n_out=90).to(device)
 
@@ -18,6 +21,7 @@ model.eval()
 
 tfidf_path = './checkpoint/tfidf_vectorizer.pkl'
 mlb_path = './checkpoint/multilable.pkl'
+
 with open(tfidf_path, 'rb') as f:
     tfidf = pickle.load(f)
 with open(mlb_path, 'rb') as f:
